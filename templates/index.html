@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with PDF Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .chat-container {
+            width: 80%;
+            max-width: 600px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            height: 70vh;
+        }
+        .chat-message {
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #cceeff;
+        }
+        .bot-message {
+            align-self: flex-start;
+        }
+        .user-input {
+            width: calc(100% - 85px); /* Adjusted width */
+            margin-right: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            max-width: 600px; /* Increased max-width for responsiveness */
+            box-sizing: border-box; /* Ensure padding and border included in width */
+        }
+        .send-button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: #ffffff;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chat</h1>
+    <div class="chat-container" id="chat-container">
+        <div class="chat-message bot-message">
+            Welcome! Ask a question related to the provided documents.
+        </div>
+    </div>
+    <div style="width: 100%; display: flex; justify-content: center;">
+        <input type="text" id="user-input" class="user-input" placeholder="Ask a question...">
+        <button id="send-button" class="send-button">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+
+        document.getElementById('send-button').addEventListener('click', async () => {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (!userInput) return;
+
+            const userMessage = `<div class="chat-message user-message">${userInput}</div>`;
+            chatContainer.innerHTML += userMessage;
+
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userInput })
+            });
+
+            const result = await response.json();
+            const botMessage = `<div class="chat-message bot-message">${result.response}</div>`;
+            chatContainer.innerHTML += botMessage;
+
+            // Scroll to the bottom of the chat container
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Clear input field
+            document.getElementById('user-input').value = '';
+        });
+    </script>
+</body>
+</html>
